@@ -40,3 +40,39 @@ jobs:
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
       arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
       arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID            
+
+  Plan_UAT:
+     uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@test-01
+     with:
+       path: Baseline_Resources               
+       tf_version: latest    
+       tf_vars_file: uat.tfvars             
+       az_resource_group: actiontest     
+       az_storage_acc: githubactionsdemo  
+       az_container_name: terraformstate
+       tf_key: baseline-uat
+      #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
+     secrets:
+       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
+       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
+       arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
+       arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID
+  
+  Deploy_UAT:
+    needs: Plan_UAT
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@test-01
+    with:
+     path: Baseline_Resources      
+     tf_version: latest   
+     tf_vars_file: uat.tfvars             
+     az_resource_group: actiontest
+     az_storage_acc: githubactionsdemo
+     az_container_name: terraformstate
+     tf_key: baseline-uat      
+     gh_environment: uat   
+    secrets:
+      arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
+      arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
+      arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
+      arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID        
+    
