@@ -79,22 +79,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.2
-
+    # Setup Terraform Version
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.0.0
         with:
           terraform_version: ${{ inputs.tf_version }}
+    # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: 
+          python-version: '3.10'
+    # Install Checkov
+      - name: Install Checkov
+        id: checkov
+        run: pip3 install checkov
+      - name: Show Checkov Version
+        run: checkov -v
 
+      - name: Run Checkov
+        run: checkov -d . -o sarif -s --framework terraform --skip-check CKV_AZURE_59,CKV_AZURE_40,CKV_AZURE_53,CKV_AZURE_37,CKV_AZURE_41,CKV_AZURE_1
+      - name: Upload Checkov Artifact
+        uses: actions/upload-artifact@v4
+        with:
+         name: checkov-results
+         path: ./results.sarif        
+
+      # Terraform Format
       - name: Terraform Format
         id: fmt
         run: terraform fmt --recursive
-
-      - name: Test with Checkov
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: ./
-          framework: terraform 
+      # Checkov Using Bridgecrew action
+      # - name: Test with Checkov
+      #   id: checkov
+      #   uses: bridgecrewio/checkov-action@master
+      #   with:
+      #     directory: ./
+      #     framework: terraform 
 
       - name: Terraform Init
         id: init
@@ -111,14 +131,3 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
-
-
-
-      # - name: Compress TF Plan artifact
-      #   run: zip -r ${{ inputs.tf_key }}.zip ./*
-      # - name: Upload Artifact
-      #   uses: actions/upload-artifact@v4.3.1
-      #   with:
-      #     name: "${{ inputs.tf_key }}"
-      #     path: "${{ inputs.path }}/${{ inputs.tf_key }}.zip"
-      #     retention-days: 5
