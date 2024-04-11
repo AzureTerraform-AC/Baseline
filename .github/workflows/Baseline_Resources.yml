@@ -7,7 +7,7 @@ on:
 
 jobs:
   Plan_Dev:
-    uses: AzureTerraform-AC/Terraform_Azure_Deployments/.github/workflows/TF_Plan.yml@pipeline-setup
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@test-01
     with:
       path: Baseline_Resources               
       tf_version: latest    
@@ -25,7 +25,7 @@ jobs:
 
   Deploy_Dev:
     needs: Plan_Dev
-    uses: AzureTerraform-AC/Terraform_Azure_Deployments/.github/workflows/TF_Apply.yml@pipeline-setup
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@test-01
     with:
       path: Baseline_Resources      
       tf_version: latest   
