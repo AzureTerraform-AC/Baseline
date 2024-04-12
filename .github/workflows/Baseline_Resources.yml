@@ -28,7 +28,7 @@ jobs:
 
   Deploy_Dev:
     needs: Plan_Dev
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@test-01
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@main
     with:
       path: Baseline_Resources      
       tf_version: latest   
@@ -64,7 +64,7 @@ jobs:
   
   Deploy_UAT:
     needs: [ Deploy_Dev, Plan_UAT ]
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@test-01
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@main
     with:
      path: Baseline_Resources      
      tf_version: latest   
