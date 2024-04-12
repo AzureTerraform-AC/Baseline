@@ -1,0 +1,5 @@
+environment = "uat"
+region      = "eastus"
+owner       = "Wozhele"
+rg_name     = "actiontest"
+prefix      = "baseline"
