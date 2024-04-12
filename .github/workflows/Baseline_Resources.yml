@@ -3,7 +3,10 @@ on:
   workflow_dispatch: #Allows you to run this workflow manually from the Actions tab
   pull_request:
     branches:
-      - main    
+      - main   
+  push:
+      branches:
+        - main         
 
 jobs:
   Plan_Dev:
