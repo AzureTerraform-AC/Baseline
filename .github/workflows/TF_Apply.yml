@@ -99,5 +99,5 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1        
       - name: Terraform Apply
-        if: github.ref == 'refs/head/main' && github.event_name == 'push'
+        if: github.ref == 'refs/head/main' 
         run: terraform apply plan.tfplan 
