@@ -1,9 +1,9 @@
-name: "Apply_TF_Plan"
-on:
+name: Apply_TF_Plan
+'on':
   workflow_call:
     inputs:
       path:
-        description: 'Specifies the path of the root terraform module.'
+        description: Specifies the path of the root terraform module.
         required: true
         type: string
       tf_version:
@@ -12,93 +12,126 @@ on:
         type: string
         default: latest
       az_resource_group:
-        description: 'Specifies the Azure Resource Group where the backend storage account is hosted.'
+        description: >-
+          Specifies the Azure Resource Group where the backend storage account
+          is hosted.
         required: true
         type: string
       az_storage_acc:
-        description: 'Specifies the Azure Storage Account where the backend state is hosted.'
+        description: Specifies the Azure Storage Account where the backend state is hosted.
         required: true
         type: string
       az_container_name:
-        description: 'Specifies the Azure Storage account container where backend Terraform state is hosted.'
+        description: >-
+          Specifies the Azure Storage account container where backend Terraform
+          state is hosted.
         required: true
         type: string
       tf_key:
-        description: 'Specifies the Terraform state file name. Workflow artifact will be the same name.'
+        description: >-
+          Specifies the Terraform state file name. Workflow artifact will be the
+          same name.
         required: true
         type: string
       gh_environment:
-        description: 'Specifies the GitHub deployment environment.'
+        description: Specifies the GitHub deployment environment.
         required: false
         type: string
         default: null
       tf_vars_file:
-        description: 'Specifies the Terraform TFVARS file.'
+        description: Specifies the Terraform TFVARS file.
         required: true
-        type: string        
+        type: string
     secrets:
       arm_client_id:
-        description: 'Specifies the Azure ARM CLIENT ID.'
+        description: Specifies the Azure ARM CLIENT ID.
         required: true
       arm_client_secret:
-        description: 'Specifies the Azure ARM CLIENT SECRET.'
+        description: Specifies the Azure ARM CLIENT SECRET.
         required: true
       arm_subscription_id:
-        description: 'Specifies the Azure ARM SUBSCRIPTION ID.'
+        description: Specifies the Azure ARM SUBSCRIPTION ID.
         required: true
       arm_tenant_id:
-        description: 'Specifies the Azure ARM TENANT ID.'
+        description: Specifies the Azure ARM TENANT ID.
         required: true
-
 jobs:
   apply-plan:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: ${{ inputs.gh_environment }}
+    environment: '${{ inputs.gh_environment }}'
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.path }}
+        working-directory: '${{ inputs.path }}'
     env:
-      STORAGE_ACCOUNT: ${{ inputs.az_storage_acc }}
-      CONTAINER_NAME: ${{ inputs.az_container_name }}
-      RESOURCE_GROUP: ${{ inputs.az_resource_group }}
-      TF_KEY: ${{ inputs.tf_key }}.tfstate
-      TF_VARS: ${{ inputs.tf_vars_file }}
-      ###AZURE Client details###
-      ARM_CLIENT_ID: ${{ secrets.arm_client_id }}
-      ARM_CLIENT_SECRET: ${{ secrets.arm_client_secret }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.arm_subscription_id }}
-      ARM_TENANT_ID: ${{ secrets.arm_tenant_id }}
-  
+      STORAGE_ACCOUNT: '${{ inputs.az_storage_acc }}'
+      CONTAINER_NAME: '${{ inputs.az_container_name }}'
+      RESOURCE_GROUP: '${{ inputs.az_resource_group }}'
+      TF_KEY: '${{ inputs.tf_key }}.tfstate'
+      TF_VARS: '${{ inputs.tf_vars_file }}'
+      ARM_CLIENT_ID: '${{ secrets.arm_client_id }}'
+      ARM_CLIENT_SECRET: '${{ secrets.arm_client_secret }}'
+      ARM_SUBSCRIPTION_ID: '${{ secrets.arm_subscription_id }}'
+      ARM_TENANT_ID: '${{ secrets.arm_tenant_id }}'
     steps:
-      # - name: Download Artifact
-      #   uses: actions/download-artifact@v4.1.4
-      #   with:
-      #     name: ${{ inputs.tf_key }}
-      #     path: ${{ inputs.path }}
-
-      # - name: Decompress TF Plan artifact
-      #   run: unzip ${{ inputs.tf_key }}.zip
       - name: Checkout
         uses: actions/checkout@v4.1.2
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.0.0
         with:
-          terraform_version: ${{ inputs.tf_version }}
-
+          terraform_version: '${{ inputs.tf_version }}'
       - name: Terraform Init
         id: init
-        run: terraform init --backend-config="storage_account_name=$STORAGE_ACCOUNT" --backend-config="container_name=$CONTAINER_NAME" --backend-config="resource_group_name=$RESOURCE_GROUP" --backend-config="key=$TF_KEY"
-
+        run: >-
+          terraform init
+          --backend-config="storage_account_name=$STORAGE_ACCOUNT"
+          --backend-config="container_name=$CONTAINER_NAME"
+          --backend-config="resource_group_name=$RESOURCE_GROUP"
+          --backend-config="key=$TF_KEY"
       - name: Terraform Plan
         id: plan
         run: terraform plan -var-file=$TF_VARS --out=plan.tfplan
-
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
-        run: exit 1 
-               
+        run: exit 1
+      - name: Request Approval
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const { data: pullRequest } = await github.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+
+            await github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'COMMENT',
+              body: 'Please review the Terraform plan.'
+            });
+      # - name: Wait for Approval
+      #   uses: octokit/request-action@v2.x
+      #   id: wait_for_approval
+      #   with:
+      #     route: 'GET /repos/:owner/:repo/pulls/:pull_number/reviews'
+      #     owner: '${{ github.repository_owner }}'
+      #     repo: '${{ github.event.repository.name }}'
+      #     pull_number: '${{ github.event.pull_request.number }}'
+      #     headers: >-
+      #       {"Accept": "application/vnd.github.v3+json", "Authorization": "token
+      #       ${{ secrets.GITHUB_TOKEN }}"}
+      #   continue-on-error: true
+      #   timeout: 1800000
+      # - name: Check Approval Status
+      #   if: >-
+      #     ${{ fromJson(steps.wait_for_approval.outputs.data).some(review =>
+      #     review.state === 'APPROVED') }}
+      #   run: exit 0
+      #   else:
+      #     run: exit 1
+
       - name: Terraform Apply
-        run: terraform apply plan.tfplan 
+        run: terraform apply plan.tfplan
