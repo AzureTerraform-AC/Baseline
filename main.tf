@@ -1,7 +1,6 @@
 module "baseline" {
-  source = "./modules"
+  source = "./modules/Baseline_Resources"
 
-  prefix      = var.prefix
   region      = var.region
   environment = var.environment
   owner       = var.owner
