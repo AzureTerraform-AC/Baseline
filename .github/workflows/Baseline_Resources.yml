@@ -6,7 +6,7 @@ on:
       - main   
   push:
       branches:
-        - main         
+        - main     
 
 jobs:
   Terraform_Plan:
@@ -15,10 +15,10 @@ jobs:
       path: ./           
       tf_version: latest 
       tf_vars_file: ./env/dev_baseline.tfvars            
-      az_resource_group: ${{ vars.az_resource_group }}     
-      az_storage_acc: ${{ vars.az_storage_acc }}  
-      az_container_name: ${{ vars.AZ_CONTAINER_NAME }}
-      tf_key: ${{ vars.TF_KEY }}
+      az_resource_group: ${{ env.dev_az_resource_group }}     
+      az_storage_acc: ${{ env.dev_az_storage_acc }}  
+      az_container_name: ${{ env.dev_az_container_name }}
+      tf_key: ${{ env.dev_tf_key }}
     #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
