@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "test" {
-  name   = var.rg_name
+  name     = var.rg_name
   location = var.region
   tags = {
     environment = var.environment

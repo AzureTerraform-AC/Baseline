@@ -14,7 +14,7 @@ jobs:
     with:
       path: ./           
       tf_version: latest    
-      tf_vars_file: dev.tfvars             
+      tf_vars_file: ./env/dev_baseline.tfvars            
       az_resource_group: TestRG     
       az_storage_acc: githubactionsdemo  
       az_container_name: terraformstate
@@ -30,9 +30,9 @@ jobs:
     needs: Terraform_Plan
     uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@test-01
     with:
-      path: Baseline_Resources      
+      path: ./    
       tf_version: latest   
-      tf_vars_file: dev.tfvars             
+      tf_vars_file: ./env/dev_baseline.tfvars              
       az_resource_group: TestRG
       az_storage_acc: githubactionsdemo
       az_container_name: terraformstate
