@@ -28,11 +28,11 @@ on:
         description: 'Specifies the Terraform state file name for this plan. Workflow artifact will use same name'
         required: true
         type: string
-      gh_environment:
-        description: 'Specifies the GitHub deployment environment.'
-        required: false
-        type: string
-        default: null
+      # gh_environment:
+      #   description: 'Specifies the GitHub deployment environment.'
+      #   required: false
+      #   type: string
+      #   default: null
       tf_vars_file:
         description: 'Specifies the Terraform TFVARS file.'
         required: true
@@ -59,7 +59,12 @@ on:
 jobs:
   build-plan:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.gh_environment }}
+    # environment: ${{ inputs.gh_environment }}
+
+    strategy:
+      matrix:
+        environment: [dev]  # Define different environments
+
     defaults:
       run:
         shell: bash
@@ -79,6 +84,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.2
+
+      - name: Set Environment Secrets
+        id: set_env_secrets
+        run: |
+          if [ "${{ matrix.environment }}" == "dev" ]; then
+            echo "Setting secrets for dev environment"
+            echo "::set-output name=az_resource_group::${{ secrets.DEV_AZ_RESOURCE_GROUP }}"
+            echo "::set-output name=az_storage_acc::${{ secrets.DEV_AZ_STORAGE_ACC }}"
+            echo "::set-output name=az_container_name::${{ secrets.DEV_AZ_CONTAINER_NAME }}"
+            echo "::set-output name=tf_key::${{ secrets.DEV_TF_KEY }}"
+            # Set other secrets for dev environment
+          elif [ "${{ matrix.environment }}" == "staging" ]; then
+            echo "Setting secrets for staging environment"
+            echo "::set-output name=az_resource_group::${{ secrets.STAGING_AZ_RESOURCE_GROUP }}"
+            echo "::set-output name=az_storage_acc::${{ secrets.STAGING_AZ_STORAGE_ACC }}"
+            # Set other secrets for staging environment
+          elif [ "${{ matrix.environment }}" == "production" ]; then
+            echo "Setting secrets for production environment"
+            echo "::set-output name=az_resource_group::${{ secrets.PROD_AZ_RESOURCE_GROUP }}"
+            echo "::set-output name=az_storage_acc::${{ secrets.PROD_AZ_STORAGE_ACC }}"
+            # Set other secrets for production environment
+          else
+            echo "Invalid environment"
+            exit 1
+          fi
+
     # Setup Terraform Version
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.0.0
