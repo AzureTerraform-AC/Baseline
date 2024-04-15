@@ -13,12 +13,16 @@ jobs:
     uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@test-01
     with:
       path: ./           
-      tf_version: latest    
+      tf_version: latest 
       tf_vars_file: ./env/dev_baseline.tfvars            
-      az_resource_group: TestRG     
-      az_storage_acc: githubactionsdemo  
-      az_container_name: terraformstate
-      tf_key: baseline-dev
+      az_resource_group: ${{ env.az_resource_group }}     
+      az_storage_acc: ${{ env.az_storage_acc }}  
+      az_container_name: ${{ secrets.AZ_CONTAINER_NAME }}
+      tf_key: ${{ secrets.TF_KEY }}
+      # az_resource_group: TestRG     
+      # az_storage_acc: githubactionsdemo  
+      # az_container_name: terraformstate
+      # tf_key: baseline-dev
     #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
@@ -37,7 +41,6 @@ jobs:
       az_storage_acc: githubactionsdemo
       az_container_name: terraformstate
       tf_key: baseline-dev      
-      gh_environment: dev   
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret

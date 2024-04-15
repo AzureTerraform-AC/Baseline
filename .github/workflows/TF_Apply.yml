@@ -27,11 +27,11 @@ on:
         description: 'Specifies the Terraform state file name. Workflow artifact will be the same name.'
         required: true
         type: string
-      gh_environment:
-        description: 'Specifies the GitHub deployment environment.'
-        required: false
-        type: string
-        default: null
+      # gh_environment:
+      #   description: 'Specifies the GitHub deployment environment.'
+      #   required: false
+      #   type: string
+      #   default: null
       tf_vars_file:
         description: 'Specifies the Terraform TFVARS file.'
         required: true
@@ -54,7 +54,7 @@ jobs:
   apply-plan:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: ${{ inputs.gh_environment }}
+    # environment: ${{ inputs.gh_environment }}
     defaults:
       run:
         shell: bash
