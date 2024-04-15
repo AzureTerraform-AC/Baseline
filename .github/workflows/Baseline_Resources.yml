@@ -15,8 +15,8 @@ jobs:
       path: ./           
       tf_version: latest 
       tf_vars_file: ./env/dev_baseline.tfvars            
-      az_resource_group: ${{ env.az_resource_group }}     
-      az_storage_acc: ${{ env.az_storage_acc }}  
+      az_resource_group: ${{ secrets.az_resource_group }}     
+      az_storage_acc: ${{ secrets.az_storage_acc }}  
       az_container_name: ${{ secrets.AZ_CONTAINER_NAME }}
       tf_key: ${{ secrets.TF_KEY }}
       # az_resource_group: TestRG     
