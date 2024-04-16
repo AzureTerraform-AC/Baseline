@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # az_variables: ${{ steps.get_vars.outputs.variables }}
-      az_resource_group: ${{ steps.get_vars.outputs.AZ_RESOURCE_GROUP }}
-      az_storage_acc: ${{ steps.get_vars.outputs.AZ_STORAGE_ACC }}
-      az_container_name: ${{ steps.get_vars.outputs.AZ_CONTAINER_NAME }}
+      resource_group: ${{ steps.get_vars.outputs.RESOURCE_GROUP }}
+      storage_acc: ${{ steps.get_vars.outputs.STORAGE_ACCOUNT }}
+      container_name: ${{ steps.get_vars.outputs.CONTAINER_NAME }}
       tf_key: ${{ steps.get_vars.outputs.TF_KEY }}
 
     steps:
@@ -30,9 +30,9 @@ jobs:
       - name: Get Variables
         id: get_vars
         run: |
-          echo "AZ_RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_OUTPUT
-          echo "AZ_STORAGE_ACC=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_OUTPUT
-          echo "AZ_CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_OUTPUT
+          echo "RESOURCE_GROUP=${{ steps.environment.outputs.resource_group }}" >> $GITHUB_OUTPUT
+          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.storage_acc }}" >> $GITHUB_OUTPUT
+          echo "CONTAINER_NAME=${{ steps.environment.outputs.container_name }}" >> $GITHUB_OUTPUT
           echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_OUTPUT
           
   Terraform_Plan:
