@@ -117,7 +117,7 @@ jobs:
 
       - name: Configure environment
         id: environment
-        uses: c-py/action-dotenv-to-setenv@v2
+        uses: ./.github/actions/dotenv-action
         with:
           env-file: ./env/dev.env
 

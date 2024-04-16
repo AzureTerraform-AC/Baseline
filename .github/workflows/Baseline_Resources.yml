@@ -10,15 +10,15 @@ on:
 
 jobs:
   Terraform_Plan:
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@dynamic-file
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@diff-env-in-baseline-resources-file
     with:
       path: ./           
       tf_version: latest 
       tf_vars_file: ./env/dev_baseline.tfvars            
-      az_resource_group: ${{ steps.environment.outputs.az_resource_group }}   
-      az_storage_acc: ${{ steps.environment.outputs.az_storage_acc }} 
-      az_container_name: ${{ steps.environment.outputs.az_container_name }}
-      tf_key: ${{ steps.environment.outputs.tf_key }}
+      az_resource_group: ${{ github.env.DEV_AZ_RESOURCE_GROUP }}  
+      az_storage_acc: ${{ github.env.DEV_AZ_STORAGE_ACC }} 
+      az_container_name: ${{ github.env.DEV_AZ_CONTAINER_NAME }}
+      tf_key: ${{ github.env.DEV_TF_KEY }}
     #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
@@ -28,15 +28,15 @@ jobs:
 
   Terraform_Apply:
     needs: Terraform_Plan
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@dynamic-file
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@diff-env-in-baseline-resources-file
     with:
       path: ./           
       tf_version: latest 
       tf_vars_file: ./env/dev_baseline.tfvars                    
-      az_resource_group: ${{ steps.environment.outputs.az_resource_group }}   
-      az_storage_acc: ${{ steps.environment.outputs.az_storage_acc }} 
-      az_container_name: ${{ steps.environment.outputs.az_container_name }}
-      tf_key: ${{ steps.environment.outputs.tf_key }}
+      az_resource_group: ${{ github.env.DEV_AZ_RESOURCE_GROUP }}  
+      az_storage_acc: ${{ github.env.DEV_AZ_STORAGE_ACC }} 
+      az_container_name: ${{ github.env.DEV_AZ_CONTAINER_NAME }}
+      tf_key: ${{ github.env.DEV_TF_KEY }}
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
