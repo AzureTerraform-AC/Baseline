@@ -15,10 +15,10 @@ jobs:
       path: ./           
       tf_version: latest 
       tf_vars_file: ./env/dev_baseline.tfvars            
-      az_resource_group: ${{ steps.environment.outputs.AZ_RESOURCE_GROUP }}    
-      az_storage_acc: ${{ steps.environment.outputs.AZ_STORAGE_ACC }}  
-      az_container_name: ${{ steps.environment.outputs.AZ_CONTAINER_NAME }}
-      tf_key: ${{ steps.environment.outputs.TF_KEY }}
+      # az_resource_group: ${{ steps.environment.outputs.AZ_RESOURCE_GROUP }}    
+      # az_storage_acc: ${{ steps.environment.outputs.AZ_STORAGE_ACC }}  
+      # az_container_name: ${{ steps.environment.outputs.AZ_CONTAINER_NAME }}
+      # tf_key: ${{ steps.environment.outputs.TF_KEY }}
     #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
@@ -33,10 +33,10 @@ jobs:
       path: ./           
       tf_version: latest 
       tf_vars_file: ./env/dev_baseline.tfvars            
-      az_resource_group: ${{ steps.environment.outputs.AZ_RESOURCE_GROUP }}    
-      az_storage_acc: ${{ steps.environment.outputs.AZ_STORAGE_ACC }}  
-      az_container_name: ${{ steps.environment.outputs.AZ_CONTAINER_NAME }}
-      tf_key: ${{ steps.environment.outputs.TF_KEY }}  
+      # az_resource_group: ${{ steps.environment.outputs.AZ_RESOURCE_GROUP }}    
+      # az_storage_acc: ${{ steps.environment.outputs.AZ_STORAGE_ACC }}  
+      # az_container_name: ${{ steps.environment.outputs.AZ_CONTAINER_NAME }}
+      # tf_key: ${{ steps.environment.outputs.TF_KEY }}  
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
