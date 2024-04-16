@@ -125,6 +125,10 @@ jobs:
       #   id: load_env
       #   run: |
       #     export $(grep -v '^#' env/dev.env | xargs -0)
+      
+      - name: Checking Init Values
+        id: checking
+        run: echo "${{ inputs.az_storage_acc }}"
 
       - name: Terraform Init
         id: init
