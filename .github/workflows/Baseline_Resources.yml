@@ -37,7 +37,7 @@ jobs:
       path: ./
       tf_version: latest
       tf_vars_file: ./env/dev_baseline.tfvars
-      az_resource_group: ${{fromJson(needs.Get_Plan_Variables.outputs.az_variables).az_resource_group}}
+      az_resource_group: ${{needs.Get_Plan_Variables.outputs.az_resource_group}}
       az_storage_acc: ${{fromJson(needs.Get_Plan_Variables.outputs.az_variables).az_storage_acc}}
       az_container_name: ${{fromJson(needs.Get_Plan_Variables.outputs.az_variables).az_container_name}}
       tf_key: ${{fromJson(needs.Get_Plan_Variables.outputs.az_variables).tf_key}}
