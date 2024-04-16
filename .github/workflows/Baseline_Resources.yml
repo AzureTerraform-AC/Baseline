@@ -24,8 +24,10 @@ jobs:
       - name: Get Variables
         id: get_vars
         run: |
-          echo "::set-output name=variables::az_resource_group=${{ steps.environment.outputs.az_resource_group }},az_storage_acc=${{ steps.environment.outputs.az_storage_acc }},az_container_name=${{ steps.environment.outputs.az_container_name }},tf_key=${{ steps.environment.outputs.tf_key }}"
-
+          echo "AZ_RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_ENV
+          echo "AZ_STORAGE_ACC=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_ENV
+          echo "AZ_CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_ENV
+          echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_ENV
           
   Terraform_Plan:
     needs: Get_Plan_Variables
@@ -61,7 +63,10 @@ jobs:
       - name: Get Variables
         id: get_vars
         run: |
-          echo "::set-output name=variables::az_resource_group=${{ steps.environment.outputs.az_resource_group }},az_storage_acc=${{ steps.environment.outputs.az_storage_acc }},az_container_name=${{ steps.environment.outputs.az_container_name }},tf_key=${{ steps.environment.outputs.tf_key }}"
+          echo "AZ_RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_ENV
+          echo "AZ_STORAGE_ACC=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_ENV
+          echo "AZ_CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_ENV
+          echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_ENV       
 
   Terraform_Apply:
     needs: Get_Apply_Variables
