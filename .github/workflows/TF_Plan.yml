@@ -12,22 +12,22 @@ on:
         required: false
         type: string
         default: latest
-      # az_resource_group:
-      #   description: 'Specifies the Azure Resource Group where the backend storage account is hosted.'
-      #   required: true
-      #   type: string
-      # az_storage_acc:
-      #   description: 'Specifies the Azure Storage Account where the backend state is hosted.'
-      #   required: true
-      #   type: string
-      # az_container_name:
-      #   description: 'Specifies the Azure Storage account container where backend Terraform state is hosted.'
-      #   required: true
-      #   type: string
-      # tf_key:
-      #   description: 'Specifies the Terraform state file name for this plan. Workflow artifact will use same name'
-      #   required: true
-      #   type: string
+      az_resource_group:
+        description: 'Specifies the Azure Resource Group where the backend storage account is hosted.'
+        required: true
+        type: string
+      az_storage_acc:
+        description: 'Specifies the Azure Storage Account where the backend state is hosted.'
+        required: true
+        type: string
+      az_container_name:
+        description: 'Specifies the Azure Storage account container where backend Terraform state is hosted.'
+        required: true
+        type: string
+      tf_key:
+        description: 'Specifies the Terraform state file name for this plan. Workflow artifact will use same name'
+        required: true
+        type: string
       # environment:
       #   description: 'Specifies the GitHub deployment environment.'
       #   required: false
@@ -114,16 +114,21 @@ jobs:
       #   with:
       #     directory: ./
       #     framework: terraform 
-      - name: Configure environment
-        id: environment
-        uses: c-py/action-dotenv-to-setenv@v2
-        with:
-          env-file: ./env/dev.env
+      # - name: Configure environment
+      #   id: environment
+      #   uses: c-py/action-dotenv-to-setenv@v2
+      #   with:
+      #     env-file: ./env/dev.env
+
+      - name: Load environment variables
+        id: load_env
+        run: |
+          export $(grep -v '^#' env/dev.env | xargs -0)
 
       - name: Terraform Init
         id: init
-        run: terraform init --backend-config="storage_account_name=${{ steps.environment.outputs.AZ_STORAGE_ACC }}" --backend-config="container_name=${{ steps.environment.outputs.AZ_CONTAINER_NAME }}" --backend-config="resource_group_name=${{ steps.environment.outputs.AZ_RESOURCE_GROUP }}" --backend-config="key=${{ steps.environment.outputs.TF_KEY }}"   
-       
+        run: terraform init --backend-config="storage_account_name=$STORAGE_ACCOUNT" --backend-config="container_name=$CONTAINER_NAME" --backend-config="resource_group_name=$RESOURCE_GROUP" --backend-config="key=$TF_KEY"          
+      
       - name: Terraform Validate
         id: validate
         run: terraform validate
