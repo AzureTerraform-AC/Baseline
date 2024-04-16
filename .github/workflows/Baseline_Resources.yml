@@ -30,9 +30,9 @@ jobs:
       - name: Get Variables
         id: get_vars
         run: |
-          echo "RESOURCE_GROUP=${{ steps.environment.outputs.resource_group }}" >> $GITHUB_OUTPUT
-          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.storage_acc }}" >> $GITHUB_OUTPUT
-          echo "CONTAINER_NAME=${{ steps.environment.outputs.container_name }}" >> $GITHUB_OUTPUT
+          echo "RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_OUTPUT
+          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_OUTPUT
+          echo "CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_OUTPUT
           echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_OUTPUT
           
   Terraform_Plan:
