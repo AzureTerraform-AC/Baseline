@@ -45,6 +45,7 @@ jobs:
       arm_tenant_id: '${{ secrets.ARM_TENANT_ID }}'
 
   Get_Apply_Variables:
+    needs: Terraform_Plan
     runs-on: ubuntu-latest
     outputs:
       az_variables: ${{ steps.get_vars.outputs.variables }}  
