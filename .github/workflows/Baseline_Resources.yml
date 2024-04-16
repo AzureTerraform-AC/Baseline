@@ -21,7 +21,7 @@ jobs:
         with:
           env-file: ./env/dev.env
 
-      - name: Terraform_Plan:
+      - name: Terraform_Plan
         uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@dynamic-file
         with:
           path: ./           
