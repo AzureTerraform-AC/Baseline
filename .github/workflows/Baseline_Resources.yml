@@ -26,14 +26,15 @@ jobs:
         uses: c-py/action-dotenv-to-setenv@v2
         with:
           env-file: .env
+        
 
       - name: Get Variables
         id: get_vars
         run: |
-          echo "RESOURCE_GROUP=${{ steps.environment.outputs.AZ_RESOURCE_GROUP }}" >> $GITHUB_OUTPUT
-          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.AZ_STORAGE_ACC }}" >> $GITHUB_OUTPUT
-          echo "CONTAINER_NAME=${{ steps.environment.outputs.AZ_CONTAINER_NAME }}" >> $GITHUB_OUTPUT
-          echo "TF_KEY=${{ steps.environment.outputs.TF_KEY }}" >> $GITHUB_OUTPUT
+          echo "RESOURCE_GROUP=${{ steps.environment.outputs.env.AZ_RESOURCE_GROUP }}" >> $GITHUB_OUTPUT
+          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.env.AZ_STORAGE_ACC }}" >> $GITHUB_OUTPUT
+          echo "CONTAINER_NAME=${{ steps.environment.outputs.env.AZ_CONTAINER_NAME }}" >> $GITHUB_OUTPUT
+          echo "TF_KEY=${{ steps.environment.outputs.env.TF_KEY }}" >> $GITHUB_OUTPUT
           
   Terraform_Plan:
     needs: Get_Plan_Variables
