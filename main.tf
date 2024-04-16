@@ -1,5 +1,5 @@
 module "baseline" {
-  source = "../modules/Baseline_Resources"
+  source = "./modules/Baseline_Resources"
 
   region      = var.region
   environment = var.environment
