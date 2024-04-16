@@ -115,11 +115,11 @@ jobs:
       #     directory: ./
       #     framework: terraform 
 
-      - name: Configure environment
-        id: environment
-        uses: c-py/action-dotenv-to-setenv@v2
-        with:
-          env-file: ./env/dev.env
+      # - name: Configure environment
+      #   id: environment
+      #   uses: c-py/action-dotenv-to-setenv@v2
+      #   with:
+      #     env-file: ./env/dev.env
 
       # - name: Load environment variables
       #   id: load_env
@@ -128,7 +128,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init --backend-config="storage_account_name=${{ steps.environment.outputs.az_storage_acc }}" --backend-config="container_name=${{ steps.environment.outputs.az_container_name }}" --backend-config="resource_group_name=${{ steps.environment.outputs.az_resource_group }}" --backend-config="key=${{ steps.environment.outputs.tf_key }}"          
+        run: terraform init --backend-config="storage_account_name=${{ inputs.az_storage_acc }}" --backend-config="container_name=${{ inputs.az_container_name }}" --backend-config="resource_group_name=${{ inputs.az_resource_group }}" --backend-config="key=${{ inputs.tf_key }}"          
       
       - name: Terraform Validate
         id: validate
