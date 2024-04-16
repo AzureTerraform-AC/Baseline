@@ -30,10 +30,10 @@ jobs:
       - name: Get Variables
         id: get_vars
         run: |
-          echo "RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_OUTPUT
-          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_OUTPUT
-          echo "CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_OUTPUT
-          echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_OUTPUT
+          echo "RESOURCE_GROUP=${{ steps.environment.outputs.AZ_RESOURCE_GROUP }}" >> $GITHUB_OUTPUT
+          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.AZ_STORAGE_ACC }}" >> $GITHUB_OUTPUT
+          echo "CONTAINER_NAME=${{ steps.environment.outputs.AZ_CONTAINER_NAME }}" >> $GITHUB_OUTPUT
+          echo "TF_KEY=${{ steps.environment.outputs.TF_KEY }}" >> $GITHUB_OUTPUT
           
   Terraform_Plan:
     needs: Get_Plan_Variables
@@ -42,10 +42,10 @@ jobs:
       path: ./
       tf_version: latest
       tf_vars_file: ./env/dev_baseline.tfvars
-      az_resource_group: ${{ github.env.RESOURCE_GROUP }}
-      az_storage_acc: ${{ github.env.STORAGE_ACCOUNT }}
-      az_container_name: ${{ github.env.CONTAINER_NAME }}
-      tf_key: ${{ github.env.TF_KEY }}
+      az_resource_group: ${{ needs.Get_Plan_Variables.outputs.resource_group }}
+      az_storage_acc: ${{ needs.Get_Plan_Variables.outputs.storage_acc }}
+      az_container_name: ${{ needs.Get_Plan_Variables.outputs.container_name }}
+      tf_key: ${{ needs.Get_Plan_Variables.outputs.tf_key }}
     secrets:
       arm_client_id: '${{ secrets.ARM_CLIENT_ID }}'
       arm_client_secret: '${{ secrets.ARM_CLIENT_SECRET }}'
