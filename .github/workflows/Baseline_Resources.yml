@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # az_variables: ${{ steps.get_vars.outputs.variables }}
-      resource_group: ${{ steps.get_vars.outputs.RESOURCE_GROUP }}
-      storage_acc: ${{ steps.get_vars.outputs.STORAGE_ACCOUNT }}
-      container_name: ${{ steps.get_vars.outputs.CONTAINER_NAME }}
-      tf_key: ${{ steps.get_vars.outputs.TF_KEY }}
+      resource_group: ${{ steps.get_vars.outputs.az_resource_group }}
+      storage_acc: ${{ steps.get_vars.outputs.az_storage_acc }}
+      container_name: ${{ steps.get_vars.outputs.az_container_name }}
+      tf_key: ${{ steps.get_vars.outputs.tf_key }}
 
     steps:
       - name: Checkout code
@@ -25,7 +25,7 @@ jobs:
         id: environment
         uses: c-py/action-dotenv-to-setenv@v2
         with:
-          env-file: .env
+          filename: .env
 
       - name: Get Variables
         id: get_vars
