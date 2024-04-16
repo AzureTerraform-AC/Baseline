@@ -38,9 +38,9 @@ jobs:
       tf_version: latest
       tf_vars_file: ./env/dev_baseline.tfvars
       az_resource_group: ${{needs.Get_Plan_Variables.outputs.az_resource_group}}
-      az_storage_acc: ${{fromJson(needs.Get_Plan_Variables.outputs.az_variables).az_storage_acc}}
-      az_container_name: ${{fromJson(needs.Get_Plan_Variables.outputs.az_variables).az_container_name}}
-      tf_key: ${{fromJson(needs.Get_Plan_Variables.outputs.az_variables).tf_key}}
+      az_storage_acc: $${{needs.Get_Plan_Variables.outputs.az_storage_acc}}
+      az_container_name: $${{needs.Get_Plan_Variables.outputs.az_container_name}}
+      tf_key: $${{needs.Get_Plan_Variables.outputs.tf_key}}
     secrets:
       arm_client_id: '${{ secrets.ARM_CLIENT_ID }}'
       arm_client_secret: '${{ secrets.ARM_CLIENT_SECRET }}'
