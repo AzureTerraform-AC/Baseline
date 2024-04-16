@@ -37,15 +37,15 @@ jobs:
           
   Terraform_Plan:
     needs: Get_Plan_Variables
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@dynamic-file
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@dynamic-file-franko
     with:
       path: ./
       tf_version: latest
       tf_vars_file: ./env/dev_baseline.tfvars
-      az_resource_group: ${{ env.RESOURCE_GROUP }}
-      az_storage_acc: ${{ env.STORAGE_ACCOUNT }}
-      az_container_name: ${{ env.CONTAINER_NAME }}
-      tf_key: ${{ env.TF_KEY }}
+      az_resource_group: ${{ github.env.RESOURCE_GROUP }}
+      az_storage_acc: ${{ github.env.STORAGE_ACCOUNT }}
+      az_container_name: ${{ github.env.CONTAINER_NAME }}
+      tf_key: ${{ github.env.TF_KEY }}
     secrets:
       arm_client_id: '${{ secrets.ARM_CLIENT_ID }}'
       arm_client_secret: '${{ secrets.ARM_CLIENT_SECRET }}'
@@ -76,7 +76,7 @@ jobs:
 
   Terraform_Apply:
     needs: Get_Apply_Variables
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@dynamic-file
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@dynamic-file-franko
     with:
       path: ./
       tf_version: latest
