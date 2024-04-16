@@ -11,7 +11,12 @@ jobs:
   Get_Plan_Variables:
     runs-on: ubuntu-latest
     outputs:
-      az_variables: ${{ steps.get_vars.outputs.variables }}
+      # az_variables: ${{ steps.get_vars.outputs.variables }}
+      az_resource_group: ${{ steps.get_vars.outputs.AZ_RESOURCE_GROUP }}
+      az_storage_acc: ${{ steps.get_vars.outputs.AZ_STORAGE_ACC }}
+      az_container_name: ${{ steps.get_vars.outputs.AZ_CONTAINER_NAME }}
+      tf_key: ${{ steps.get_vars.outputs.TF_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -37,10 +42,10 @@ jobs:
       path: ./
       tf_version: latest
       tf_vars_file: ./env/dev_baseline.tfvars
-      az_resource_group: ${{needs.Get_Plan_Variables.outputs.az_variables.az_resource_group}}
-      az_storage_acc: ${{needs.Get_Plan_Variables.outputs.az_variables.az_storage_acc}}
-      az_container_name: ${{needs.Get_Plan_Variables.outputs.az_variables.az_container_name}}
-      tf_key: ${{needs.Get_Plan_Variables.outputs.az_variables.tf_key}}
+      az_resource_group: ${{needs.Get_Plan_Variables.outputs.az_resource_group}}
+      az_storage_acc: ${{needs.Get_Plan_Variables.outputs.az_storage_acc}}
+      az_container_name: ${{needs.Get_Plan_Variables.outputs.az_container_name}}
+      tf_key: ${{needs.Get_Plan_Variables.outputs.tf_key}}
     secrets:
       arm_client_id: '${{ secrets.ARM_CLIENT_ID }}'
       arm_client_secret: '${{ secrets.ARM_CLIENT_SECRET }}'
