@@ -49,7 +49,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       az_variables: ${{ steps.get_vars.outputs.variables }}  
-    needs: Terraform_Plan
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
