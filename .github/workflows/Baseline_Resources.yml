@@ -25,10 +25,10 @@ jobs:
       - name: Get Variables
         id: get_vars
         run: |
-          echo "AZ_RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_OUTPUT
-          echo "AZ_STORAGE_ACC=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_OUTPUT
-          echo "AZ_CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_OUTPUT
-          echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_OUTPUT
+          echo "AZ_RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_ENV
+          echo "AZ_STORAGE_ACC=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_ENV
+          echo "AZ_CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_ENV
+          echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_ENV
           
   Terraform_Plan:
     needs: Get_Plan_Variables
