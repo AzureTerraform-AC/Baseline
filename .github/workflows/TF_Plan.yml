@@ -127,7 +127,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init --backend-config="storage_account_name=$STORAGE_ACCOUNT" --backend-config="container_name=$CONTAINER_NAME" --backend-config="resource_group_name=$RESOURCE_GROUP" --backend-config="key=$TF_KEY"          
+        run: terraform init --backend-config="storage_account_name=${{ env.AZ_STORAGE_ACC }}" --backend-config="container_name=${{ env.CONTAINER_NAME }}" --backend-config="resource_group_name=${{ env.RESOURCE_GROUP }}" --backend-config="key=${{ env.TF_KEY }}"          
       
       - name: Terraform Validate
         id: validate
