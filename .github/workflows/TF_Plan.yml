@@ -64,11 +64,11 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.path }}
     env:
-      # STORAGE_ACCOUNT: ${{ inputs.az_storage_acc }}
-      # CONTAINER_NAME: ${{ inputs.az_container_name }}
-      # RESOURCE_GROUP: ${{ inputs.az_resource_group }}
-      # TF_KEY: ${{ inputs.tf_key }}.tfstate
-      # TF_VARS: ${{ inputs.tf_vars_file }}
+      STORAGE_ACCOUNT: ${{ inputs.az_storage_acc }}
+      CONTAINER_NAME: ${{ inputs.az_container_name }}
+      RESOURCE_GROUP: ${{ inputs.az_resource_group }}
+      TF_KEY: ${{ inputs.tf_key }}.tfstate
+      TF_VARS: ${{ inputs.tf_vars_file }}
       ###AZURE Client details###
       ARM_CLIENT_ID: ${{ secrets.arm_client_id }}
       ARM_CLIENT_SECRET: ${{ secrets.arm_client_secret }}
@@ -114,20 +114,21 @@ jobs:
       #   with:
       #     directory: ./
       #     framework: terraform 
-      # - name: Configure environment
-      #   id: environment
-      #   uses: c-py/action-dotenv-to-setenv@v2
-      #   with:
-      #     env-file: ./env/dev.env
 
-      - name: Load environment variables
-        id: load_env
-        run: |
-          export $(grep -v '^#' env/dev.env | xargs -0)
+      - name: Configure environment
+        id: environment
+        uses: c-py/action-dotenv-to-setenv@v2
+        with:
+          env-file: ./env/dev.env
+
+      # - name: Load environment variables
+      #   id: load_env
+      #   run: |
+      #     export $(grep -v '^#' env/dev.env | xargs -0)
 
       - name: Terraform Init
         id: init
-        run: terraform init --backend-config="storage_account_name=${AZ_STORAGE_ACC}" --backend-config="container_name=${CONTAINER_NAME}" --backend-config="resource_group_name=${env.RESOURCE_GROUP}" --backend-config="key=${env.TF_KEY}"          
+        run: terraform init --backend-config="storage_account_name=${{ steps.environment.outputs.az_storage_acc }}" --backend-config="container_name=${{ steps.environment.outputs.az_container_name }}" --backend-config="resource_group_name=${{ steps.environment.outputs.az_resource_group }}" --backend-config="key=${{ steps.environment.outputs.tf_key }}"          
       
       - name: Terraform Validate
         id: validate
