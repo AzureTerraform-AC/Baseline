@@ -128,7 +128,7 @@ jobs:
       
       - name: Checking Init Values
         id: checking
-        run: echo "${{ inputs.az_storage_acc }}"
+        run: echo "$STORAGE_ACCOUNT"
 
       - name: Terraform Init
         id: init
