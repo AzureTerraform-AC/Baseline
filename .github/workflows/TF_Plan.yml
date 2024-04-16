@@ -12,26 +12,26 @@ on:
         required: false
         type: string
         default: latest
-      az_resource_group:
-        description: 'Specifies the Azure Resource Group where the backend storage account is hosted.'
-        required: true
-        type: string
-      az_storage_acc:
-        description: 'Specifies the Azure Storage Account where the backend state is hosted.'
-        required: true
-        type: string
-      az_container_name:
-        description: 'Specifies the Azure Storage account container where backend Terraform state is hosted.'
-        required: true
-        type: string
-      tf_key:
-        description: 'Specifies the Terraform state file name for this plan. Workflow artifact will use same name'
-        required: true
-        type: string
-      environment:
-        description: 'Specifies the GitHub deployment environment.'
-        required: false
-        type: string
+      # az_resource_group:
+      #   description: 'Specifies the Azure Resource Group where the backend storage account is hosted.'
+      #   required: true
+      #   type: string
+      # az_storage_acc:
+      #   description: 'Specifies the Azure Storage Account where the backend state is hosted.'
+      #   required: true
+      #   type: string
+      # az_container_name:
+      #   description: 'Specifies the Azure Storage account container where backend Terraform state is hosted.'
+      #   required: true
+      #   type: string
+      # tf_key:
+      #   description: 'Specifies the Terraform state file name for this plan. Workflow artifact will use same name'
+      #   required: true
+      #   type: string
+      # environment:
+      #   description: 'Specifies the GitHub deployment environment.'
+      #   required: false
+      #   type: string
       tf_vars_file:
         description: 'Specifies the Terraform TFVARS file.'
         required: true
@@ -58,17 +58,17 @@ on:
 jobs:
   build-plan:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    # environment: ${{ inputs.environment }}
     defaults:
       run:
         shell: bash
         working-directory: ${{ inputs.path }}
     env:
-      STORAGE_ACCOUNT: ${{ inputs.az_storage_acc }}
-      CONTAINER_NAME: ${{ inputs.az_container_name }}
-      RESOURCE_GROUP: ${{ inputs.az_resource_group }}
-      TF_KEY: ${{ inputs.tf_key }}.tfstate
-      TF_VARS: ${{ inputs.tf_vars_file }}
+      # STORAGE_ACCOUNT: ${{ inputs.az_storage_acc }}
+      # CONTAINER_NAME: ${{ inputs.az_container_name }}
+      # RESOURCE_GROUP: ${{ inputs.az_resource_group }}
+      # TF_KEY: ${{ inputs.tf_key }}.tfstate
+      # TF_VARS: ${{ inputs.tf_vars_file }}
       ###AZURE Client details###
       ARM_CLIENT_ID: ${{ secrets.arm_client_id }}
       ARM_CLIENT_SECRET: ${{ secrets.arm_client_secret }}
@@ -114,11 +114,11 @@ jobs:
       #   with:
       #     directory: ./
       #     framework: terraform 
-      - name: Configure ${{ inputs.environment }} environment
+      - name: Configure environment
         id: environment
         uses: c-py/action-dotenv-to-setenv@v2
         with:
-          env-file: ./env/${{ inputs.environment }}.env
+          env-file: ./env/dev.env
 
       - name: Terraform Init
         id: init
