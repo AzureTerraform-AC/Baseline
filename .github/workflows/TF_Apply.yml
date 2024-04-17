@@ -99,7 +99,6 @@ jobs:
         id: pr
         uses: actions/github-script@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prs = await github.pulls.list({
               owner: context.repo.owner,
@@ -110,11 +109,12 @@ jobs:
               per_page: 1
             });
             return prs.data[0].number;
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}           
 
       - name: Wait for PR approval
         uses: actions/github-script@v3
         with:
-              github-token: ${{ secrets.GITHUB_TOKEN }} # Replace with your PAT name
               script: |
                 const prNumber = ${{ steps.pr.outputs.result }}
                 let isApproved = false
@@ -130,6 +130,10 @@ jobs:
                     await new Promise(resolve => setTimeout(resolve, 60000))
                   }
                 }
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}  
+
+
       # - name: Request Approval
       #   if: always()
       #   uses: actions/github-script@v5
