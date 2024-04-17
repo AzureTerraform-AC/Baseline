@@ -100,19 +100,23 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            const { data: pullRequest } = await github.pulls.get({
+            const github = require('@actions/github');
+
+            const octokit = new github.getOctokit(process.env.GITHUB_TOKEN);
+
+            const { data: pullRequest } = await octokit.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number
             });
 
-            await github.pulls.createReview({
+            await octokit.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
               event: 'COMMENT',
               body: 'Please review the Terraform plan.'
-            });
+            }); 
           
       - name: Terraform Apply
         run: terraform apply plan.tfplan           
