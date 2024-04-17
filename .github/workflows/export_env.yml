@@ -1,0 +1,30 @@
+name: Export Environment Variables
+'on':
+    workflow_dispatch: null
+    pull_request:
+      branches:
+        - main
+    push:
+      branches:
+        - main
+
+jobs:
+  export_variables:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .env variables
+        run: |
+          while IFS= read -r line; do
+            export "$line"
+          done < .env
+
+      - name: Echo environment variables
+        run: |
+          echo "AZ_RESOURCE_GROUP=${AZ_RESOURCE_GROUP}"
+          echo "AZ_STORAGE_ACC=${AZ_STORAGE_ACC}"
+          echo "AZ_CONTAINER_NAME=${AZ_CONTAINER_NAME}"
+          echo "TF_KEY=${TF_KEY}"
+

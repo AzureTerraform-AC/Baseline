@@ -7,42 +7,14 @@ name: Baseline_Resources
   push:
     branches:
       - main
-jobs:
-  Get_Plan_Variables:
-    runs-on: ubuntu-latest
-    outputs:
-      # az_variables: ${{ steps.get_vars.outputs.variables }}
-      resource_group: ${{ steps.get_vars.outputs.az_resource_group }}
-      storage_acc: ${{ steps.get_vars.outputs.az_storage_acc }}
-      container_name: ${{ steps.get_vars.outputs.az_container_name }}
-      tf_key: ${{ steps.get_vars.outputs.tf_key }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Configure environment
-        id: environment
-        uses: c-py/action-dotenv-to-setenv@v2
-        with:
-          env-file: .env
-
-      - name: Get Variables
-        id: get_vars
-        run: |
-          echo "RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_OUTPUT
-          echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_OUTPUT
-          echo "CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_OUTPUT
-          echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_OUTPUT
-          
+jobs:        
   Terraform_Plan:
-    needs: Get_Plan_Variables
     uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@dynamic-file
     with:
       path: ./
       tf_version: latest
       tf_vars_file: ./env/dev_baseline.tfvars
-      az_resource_group: ${{needs.Get_Plan_Variables.outputs.resource_group}}
+      az_resource_group: ${{ vars.RESOURCE_GROUP }}
       az_storage_acc: ${{needs.Get_Plan_Variables.outputs.storage_acc}}
       az_container_name: ${{needs.Get_Plan_Variables.outputs.container_name}}
       tf_key: ${{needs.Get_Plan_Variables.outputs.tf_key}}
