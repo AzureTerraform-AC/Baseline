@@ -33,11 +33,11 @@ name: Apply_TF_Plan
           same name.
         required: true
         type: string
-      gh_environment:
-        description: Specifies the GitHub deployment environment.
-        required: false
-        type: string
-        default: null
+      # gh_environment:
+      #   description: 'Specifies the GitHub deployment environment.'
+      #   required: false
+      #   type: string
+      #   default: null
       tf_vars_file:
         description: Specifies the Terraform TFVARS file.
         required: true
@@ -95,7 +95,9 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
+
       - name: Request Approval
+        if: always()
         uses: actions/github-script@v5
         with:
           script: |
@@ -112,26 +114,10 @@ jobs:
               event: 'COMMENT',
               body: 'Please review the Terraform plan.'
             });
-      # - name: Wait for Approval
-      #   uses: octokit/request-action@v2.x
-      #   id: wait_for_approval
-      #   with:
-      #     route: 'GET /repos/:owner/:repo/pulls/:pull_number/reviews'
-      #     owner: '${{ github.repository_owner }}'
-      #     repo: '${{ github.event.repository.name }}'
-      #     pull_number: '${{ github.event.pull_request.number }}'
-      #     headers: >-
-      #       {"Accept": "application/vnd.github.v3+json", "Authorization": "token
-      #       ${{ secrets.GITHUB_TOKEN }}"}
-      #   continue-on-error: true
-      #   timeout: 1800000
-      # - name: Check Approval Status
-      #   if: >-
-      #     ${{ fromJson(steps.wait_for_approval.outputs.data).some(review =>
-      #     review.state === 'APPROVED') }}
-      #   run: exit 0
-      #   else:
-      #     run: exit 1
 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          
       - name: Terraform Apply
-        run: terraform apply plan.tfplan
+        run: terraform apply plan.tfplan           
+            
