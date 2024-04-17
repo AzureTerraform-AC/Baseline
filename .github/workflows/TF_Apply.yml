@@ -95,25 +95,4 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
-     
-      - name: Request Approval
-        if: always()
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const { data: pullRequest } = await github.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number
-            });
-
-            await github.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              event: 'COMMENT',
-              body: 'Please review the Terraform plan.'
-            });
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
+            
