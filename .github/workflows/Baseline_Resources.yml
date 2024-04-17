@@ -46,7 +46,7 @@ jobs:
       az_resource_group: ${{ needs.Get_Plan_Variables.outputs.resource_group }}
       az_storage_acc: ${{ needs.Get_Plan_Variables.outputs.storage_acc }}
       az_container_name: ${{ needs.Get_Plan_Variables.outputs.container_name }}
-      tf_key: ${{ needs.Get_Plan_Variables.outputs.tf_key }}
+      tf_key: ${{ needs.Get_Plan_Variables.outputs.tf_key }}.tfstate
     secrets:
       arm_client_id: '${{ secrets.ARM_CLIENT_ID }}'
       arm_client_secret: '${{ secrets.ARM_CLIENT_SECRET }}'
