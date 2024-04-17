@@ -28,11 +28,10 @@ on:
         description: 'Specifies the Terraform state file name for this plan. Workflow artifact will use same name'
         required: true
         type: string
-      gh_environment:
-        description: 'Specifies the GitHub deployment environment.'
-        required: false
-        type: string
-        default: null
+      # environment:
+      #   description: 'Specifies the GitHub deployment environment.'
+      #   required: false
+      #   type: string
       tf_vars_file:
         description: 'Specifies the Terraform TFVARS file.'
         required: true
@@ -59,7 +58,12 @@ on:
 jobs:
   build-plan:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.gh_environment }}
+    outputs: 
+      resource_group: ${{ steps.get_vars.outputs.az_resource_group }}
+      storage_acc: ${{ steps.get_vars.outputs.az_storage_acc }}
+      container_name: ${{ steps.get_vars.outputs.az_container_name }}
+      tf_key: ${{ steps.get_vars.outputs.tf_key }}      
+    # environment: ${{ inputs.environment }}
     defaults:
       run:
         shell: bash
@@ -116,10 +120,31 @@ jobs:
       #     directory: ./
       #     framework: terraform 
 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # - name: Configure environment
+      #   id: environment
+      #   uses: c-py/action-dotenv-to-setenv@v2
+      #   with:
+      #     env-file: .env
+
+      # - name: Get Variables
+      #   id: get_vars
+      #   run: |
+      #     echo "RESOURCE_GROUP=${{ steps.environment.outputs.az_resource_group }}" >> $GITHUB_OUTPUT
+      #     echo "STORAGE_ACCOUNT=${{ steps.environment.outputs.az_storage_acc }}" >> $GITHUB_OUTPUT
+      #     echo "CONTAINER_NAME=${{ steps.environment.outputs.az_container_name }}" >> $GITHUB_OUTPUT
+      #     echo "TF_KEY=${{ steps.environment.outputs.tf_key }}" >> $GITHUB_OUTPUT
+      
+      - name: Checking Init Values
+        id: checking
+        run: echo "$STORAGE_ACCOUNT"
+
       - name: Terraform Init
         id: init
-        run: terraform init --backend-config="storage_account_name=$STORAGE_ACCOUNT" --backend-config="container_name=$CONTAINER_NAME" --backend-config="resource_group_name=$RESOURCE_GROUP" --backend-config="key=$TF_KEY"   
-       
+        run: terraform init --backend-config="storage_account_name=$STORAGE_ACCOUNT" --backend-config="container_name=$CONTAINER_NAME" --backend-config="resource_group_name=$RESOURCE_GROUP" --backend-config="key=$TF_KEY"          
+      
       - name: Terraform Validate
         id: validate
         run: terraform validate
