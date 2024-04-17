@@ -95,28 +95,40 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      - name: Request Approval
-        if: github.ref == 'refs/heads/main' && success()
-        uses: actions/github-script@v5
+      - name: Add reviewers
+        uses: actions/github-script@v3
         with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const github = require('@actions/github');
-
-            const octokit = new github.getOctokit(process.env.GITHUB_TOKEN);
-
-            const { data: pullRequest } = await octokit.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number
-            });
-
-            await octokit.pulls.createReview({
+            const prNumber = context.payload.pull_request.number
+            github.pulls.requestReviewers({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
-              event: 'COMMENT',
-              body: 'Please review the Terraform plan.'
-            }); 
+              reviewers: ['addof', 'mjinga01']
+            })
+
+      # - name: Request Approval
+      #   if: always()
+      #   uses: actions/github-script@v5
+      #   with:
+      #     script: |
+      #       const { data: pullRequest } = await github.pulls.get({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         pull_number: context.payload.pull_request.number
+      #       });
+
+      #       await github.pulls.createReview({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         pull_number: context.payload.pull_request.number,
+      #         event: 'COMMENT',
+      #         body: 'Please review the Terraform plan.'
+      #       });
+
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           
       - name: Terraform Apply
         run: terraform apply plan.tfplan           
