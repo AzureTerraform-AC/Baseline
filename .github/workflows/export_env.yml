@@ -17,9 +17,11 @@ jobs:
 
       - name: Set up .env variables
         run: |
-          while IFS= read -r line; do
-            export "$line"
-          done < .env
+          source ./.env
+          echo "AZ_RESOURCE_GROUP=${{ env.AZ_RESOURCE_GROUP }}" >> $GITHUB_OUTPUT
+          echo "AZ_STORAGE_ACC=${{ env.AZ_STORAGE_ACC }}" >> $GITHUB_OUTPUT
+          echo "AZ_CONTAINER_NAME=${{ env.AZ_CONTAINER_NAME }}" >> $GITHUB_OUTPUT
+          echo "TF_KEY=${{ env.TF_KEY }}" >> $GITHUB_OUTPUT
 
       - name: Echo environment variables
         run: |
