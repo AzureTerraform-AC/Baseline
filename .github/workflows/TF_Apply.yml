@@ -59,7 +59,6 @@ jobs:
   apply-plan:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: '${{ inputs.gh_environment }}'
     defaults:
       run:
         shell: bash
@@ -97,7 +96,7 @@ jobs:
         run: exit 1
 
       - name: Request Approval
-        if: always()
+        if: github.ref == 'refs/heads/main' && success()
         uses: actions/github-script@v5
         with:
           script: |
@@ -114,9 +113,6 @@ jobs:
               event: 'COMMENT',
               body: 'Please review the Terraform plan.'
             });
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           
       - name: Terraform Apply
         run: terraform apply plan.tfplan           
