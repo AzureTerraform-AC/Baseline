@@ -99,7 +99,7 @@ jobs:
         id: pr
         uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.PAT}}
           script: |
             const prs = await github.pulls.list({
               owner: context.repo.owner,
@@ -111,18 +111,25 @@ jobs:
             });
             return prs.data[0].number;
 
-      - name: Request PR approval
+      - name: Wait for PR approval
         uses: actions/github-script@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const prNumber = ${{ steps.pr.outputs.result }};
-            github.pulls.requestReviewers({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber,
-              reviewers: ['addof', 'mjinga01']
-            });
+              github-token: ${{ secrets.PAT }} # Replace with your PAT name
+              script: |
+                const prNumber = context.payload.pull_request.number
+                let isApproved = false
+                while (!isApproved) {
+                  const { data: reviews } = await github.pulls.listReviews({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber
+                  })
+                  isApproved = reviews.some(review => review.state === 'APPROVED')
+                  if (!isApproved) {
+                    // Sleep for 1 minute
+                    await new Promise(resolve => setTimeout(resolve, 60000))
+                  }
+                }
       # - name: Request Approval
       #   if: always()
       #   uses: actions/github-script@v5
