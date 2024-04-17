@@ -95,19 +95,34 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      - name: Add reviewers
+      - name: Get latest PR number
+        id: pr
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const prNumber = context.payload.pull_request.number
+            const prs = await github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'created',
+              direction: 'desc',
+              per_page: 1
+            });
+            return prs.data[0].number;
+
+      - name: Request PR approval
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const prNumber = ${{ steps.pr.outputs.result }};
             github.pulls.requestReviewers({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
+              pull_number: prNumber,
               reviewers: ['addof', 'mjinga01']
-            })
-
+            });
       # - name: Request Approval
       #   if: always()
       #   uses: actions/github-script@v5
