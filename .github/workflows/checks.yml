@@ -36,33 +36,33 @@ jobs:
         with:
           soft_fail: true
 
-      # # TFLint Checks   
-      # - uses: actions/checkout@v4  
-      # - uses: actions/cache@v4           # TFLint - Terraform Check 
-      #   name: Cache plugin dir
-      #   with:
-      #       path: ~/.tflint.d/plugins
-      #       key: ${{ matrix.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
-      # - uses: terraform-linters/setup-tflint@v4
-      #   name: Setup TFLint
-      #   with:
-      #       github_token: ${{ secrets.TOKEN }}
-      # - name: Show version                # Print TFLint version
-      #   run: tflint --version
-      # - name: Init TFLint                 # Install plugins
-      #   run: tflint --init
-      # - name: Run TFLint & export result # Run tflint command in each directory recursively # use --force if you want to continue with workflow although errors are there
-      #   run: |
-      #       tflint -f compact --recursive
-      #       touch tflint-results.json
-      #       tflint -f json --recursive --force >> tflint-results.json
-      # - name: Upload Tflint Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #       name: tflint-results
-      #       path: ./tflint-results.json
+      # TFLint Checks   
+      - uses: actions/checkout@v4  
+      - uses: actions/cache@v4           # TFLint - Terraform Check 
+        name: Cache plugin dir
+        with:
+            path: ~/.tflint.d/plugins
+            key: ${{ matrix.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
+      - uses: terraform-linters/setup-tflint@v4
+        name: Setup TFLint
+        with:
+            github_token: ${{ secrets.TOKEN }}
+      - name: Show version                # Print TFLint version
+        run: tflint --version
+      - name: Init TFLint                 # Install plugins
+        run: tflint --init
+      - name: Run TFLint & export result # Run tflint command in each directory recursively # use --force if you want to continue with workflow although errors are there
+        run: |
+            tflint -f compact --recursive
+            touch tflint-results.json
+            tflint -f json --recursive --force >> tflint-results.json
+      - name: Upload Tflint Artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: tflint-results
+            path: ./tflint-results.json
 
-      # Sonarcube?      
+      Sonarcube?      
 
 
 

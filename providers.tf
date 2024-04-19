@@ -6,10 +6,11 @@ terraform {
     }
   }
 
+  required_version = ">=0.12"
+
   backend "azurerm" {
     key = "${var.prefix}-${var.environment}.tfstate"
   }
-  required_version = ">=0.12"
 }
 
 provider "azurerm" {
