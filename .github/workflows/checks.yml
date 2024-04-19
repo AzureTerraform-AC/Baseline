@@ -1,7 +1,7 @@
 name: "Run Checks"
 
 on: 
-    workflow-call:
+    workflow_call:
 
 jobs: 
   running-checks:
