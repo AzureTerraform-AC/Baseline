@@ -57,6 +57,9 @@ on:
         required: true
 
 jobs:
+  run-checks:
+    uses: ./.github/workflows/checks.yml
+    
   build-plan:
     runs-on: ubuntu-latest
     # environment: ${{ inputs.gh_environment }}
@@ -84,25 +87,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3.0.0
         with:
           terraform_version: ${{ inputs.tf_version }}
-    # Setup Python
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with: 
-          python-version: '3.10'
-    # Install Checkov
-      - name: Install Checkov
-        id: checkov
-        run: pip3 install checkov
-      - name: Show Checkov Version
-        run: checkov -v
-
-      - name: Run Checkov
-        run: checkov -d . -o sarif -s --framework terraform --skip-check CKV_AZURE_59,CKV_AZURE_40,CKV_AZURE_53,CKV_AZURE_37,CKV_AZURE_41,CKV_AZURE_1
-      - name: Upload Checkov Artifact
-        uses: actions/upload-artifact@v4
-        with:
-         name: checkov-results
-         path: ./results.sarif        
 
       # Terraform Format
       - name: Terraform Format
@@ -132,20 +116,20 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      - name: Request Approval
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const { data: pullRequest } = await github.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number
-            });
+      # - name: Request Approval
+      #   uses: actions/github-script@v5
+      #   with:
+      #     script: |
+      #       const { data: pullRequest } = await github.pulls.get({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         pull_number: context.payload.pull_request.number
+      #       });
 
-            await github.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              event: 'COMMENT',
-              body: 'Please review the Terraform plan.'
-            });        
+      #       await github.pulls.createReview({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         pull_number: context.payload.pull_request.number,
+      #         event: 'COMMENT',
+      #         body: 'Please review the Terraform plan.'
+      #       });        
