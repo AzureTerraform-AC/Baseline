@@ -57,7 +57,7 @@ name: Apply_TF_Plan
         required: true
 jobs:
   apply-plan:
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
