@@ -2,11 +2,12 @@ name: "Baseline_Resources"
 on:
   workflow_dispatch: #Allows you to run this workflow manually from the Actions tab
   pull_request: 
+    paths-ignore: 
+      - '*.md'    
   push:
       branches:
         - main  
-      paths-ignore: 
-        - '*.md'
+
 jobs:
   Run-Checks:
     uses: ./.github/workflows/checks.yml
