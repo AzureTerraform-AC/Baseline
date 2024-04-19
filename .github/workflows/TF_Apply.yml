@@ -59,7 +59,6 @@ jobs:
   apply-plan:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: '${{ inputs.gh_environment }}'
     defaults:
       run:
         shell: bash
@@ -95,25 +94,68 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
-     
-      - name: Request Approval
-        if: always()
-        uses: actions/github-script@v5
+
+      - name: Get latest PR number
+        id: pr
+        uses: actions/github-script@v3
         with:
           script: |
-            const { data: pullRequest } = await github.pulls.get({
+            const prs = await github.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number
+              state: 'open',
+              sort: 'created',
+              direction: 'desc',
+              per_page: 1
             });
-
-            await github.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              event: 'COMMENT',
-              body: 'Please review the Terraform plan.'
-            });
-
+            return prs.data[0].number;
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
+          GITHUB_TOKEN: ${{ secrets.PAT }}           
+
+      - name: Wait for PR approval
+        uses: actions/github-script@v3
+        with:
+              script: |
+                const prNumber = ${{ steps.pr.outputs.result }}
+                let isApproved = false
+                while (!isApproved) {
+                  const { data: reviews } = await github.pulls.listReviews({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber
+                  })
+                  isApproved = reviews.some(review => review.state === 'APPROVED')
+                  if (!isApproved) {
+                    // Sleep for 1 minute
+                    await new Promise(resolve => setTimeout(resolve, 60000))
+                  }
+                }
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}  
+
+
+      # - name: Request Approval
+      #   if: always()
+      #   uses: actions/github-script@v5
+      #   with:
+      #     script: |
+      #       const { data: pullRequest } = await github.pulls.get({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         pull_number: context.payload.pull_request.number
+      #       });
+
+      #       await github.pulls.createReview({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         pull_number: context.payload.pull_request.number,
+      #         event: 'COMMENT',
+      #         body: 'Please review the Terraform plan.'
+      #       });
+
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          
+      - name: Terraform Apply
+        run: terraform apply plan.tfplan           
+            
