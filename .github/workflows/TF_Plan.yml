@@ -57,9 +57,6 @@ on:
         required: true
 
 jobs:
-  run-checks:
-    uses: ./.github/workflows/checks.yml
-    
   build-plan:
     runs-on: ubuntu-latest
     # environment: ${{ inputs.gh_environment }}
