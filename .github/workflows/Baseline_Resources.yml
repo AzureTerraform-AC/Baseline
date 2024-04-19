@@ -11,10 +11,11 @@ on:
       paths-ignore: 
         - '*.md'
 jobs:
-  run-checks:
+  Run-Checks:
     uses: ./.github/workflows/checks.yml
     
   Terraform_Plan:
+    needs: Run-Checks
     uses: ./.github/workflows/TF_Plan.yml
     with:
       path: ./           
