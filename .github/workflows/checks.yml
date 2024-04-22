@@ -39,7 +39,7 @@ jobs:
       - name: Check linting of Terraform files
         uses: devops-infra/action-tflint@v0.3
         with:
-          tflint_config: modules/.tflint.hcl
+          tflint_config: modules
 
       # # TFLint Checks (To fix the issue with TF version [Bug?])  
       # - uses: actions/checkout@v4  
