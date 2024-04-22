@@ -31,7 +31,7 @@ jobs:
       arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID
 
   Terraform_Apply:
-    # needs: Terraform_Plan
+    needs: Terraform_Plan
     uses: ./.github/workflows/TF_Apply.yml
     with:
       path: ./           
