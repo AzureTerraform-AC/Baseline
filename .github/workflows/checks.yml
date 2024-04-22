@@ -36,6 +36,9 @@ jobs:
         with:
           soft_fail: true
 
+      - name: Check linting of Terraform files
+        uses: devops-infra/action-tflint@v0.3
+
       # # TFLint Checks (To fix the issue with TF version [Bug?])  
       # - uses: actions/checkout@v4  
       # - uses: actions/cache@v4           # TFLint - Terraform Check 
