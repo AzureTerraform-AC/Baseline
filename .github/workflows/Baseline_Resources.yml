@@ -9,8 +9,8 @@ on:
         - main         
 
 jobs:
-  Terraform_Plan:
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@main
+  Plan_Dev:
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@request-plan-approval-to-merge-to-main
     with:
       path: ./           
       tf_version: latest 
@@ -26,9 +26,9 @@ jobs:
       arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
       arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID
 
-  Terraform_Apply:
-    needs: Terraform_Plan
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@main
+  Deploy_Dev:
+    needs: Plan_Dev
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@request-plan-approval-to-merge-to-main
     with:
       path: ./           
       tf_version: latest 
@@ -42,3 +42,40 @@ jobs:
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
       arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
       arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID            
+
+
+  Plan_UAT:
+     needs: Plan_Dev
+     uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@request-plan-approval-to-merge-to-main
+     with:
+       path: Baseline_Resources               
+       tf_version: latest    
+       tf_vars_file: uat.tfvars             
+       az_resource_group: actiontest     
+       az_storage_acc: githubactionsdemouat  
+       az_container_name: terraformstateuat
+       tf_key: baseline-uat
+      #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
+     secrets:
+       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
+       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
+       arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
+       arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID
+  
+  Deploy_UAT:
+    needs: [ Deploy_Dev, Plan_UAT ]
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@request-plan-approval-to-merge-to-main
+    with:
+     path: Baseline_Resources      
+     tf_version: latest   
+     tf_vars_file: uat.tfvars             
+     az_resource_group: actiontest
+     az_storage_acc: githubactionsdemouat
+     az_container_name: terraformstateuat
+     tf_key: baseline-uat      
+     # gh_environment: uat   
+    secrets:
+      arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
+      arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
+      arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
+      arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID        
