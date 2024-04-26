@@ -73,7 +73,7 @@ jobs:
      az_storage_acc: githubactionsdemouat
      az_container_name: terraformstateuat
      tf_key: baseline-uat      
-     gh_environment: uat   
+     # gh_environment: uat   
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
