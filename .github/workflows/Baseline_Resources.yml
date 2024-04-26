@@ -10,7 +10,7 @@ on:
 
 jobs:
   Plan_Dev:
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@test-01
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@request-plan-approval-to-merge-to-main
     with:
       path: Baseline_Resources               
       tf_version: latest    
@@ -28,7 +28,7 @@ jobs:
 
   Deploy_Dev:
     needs: Plan_Dev
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@test-01
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@request-plan-approval-to-merge-to-main
     with:
       path: Baseline_Resources      
       tf_version: latest   
@@ -46,7 +46,7 @@ jobs:
 
   Plan_UAT:
      needs: Plan_Dev
-     uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@test-01
+     uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@request-plan-approval-to-merge-to-main
      with:
        path: Baseline_Resources               
        tf_version: latest    
@@ -64,7 +64,7 @@ jobs:
   
   Deploy_UAT:
     needs: [ Deploy_Dev, Plan_UAT ]
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@test-01
+    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@request-plan-approval-to-merge-to-main
     with:
      path: Baseline_Resources      
      tf_version: latest   
