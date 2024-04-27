@@ -5,5 +5,5 @@ module "baseline" {
   environment = var.environment
   owner       = var.owner
   rg_name     = var.rg_name
-
+  prefix      = var.prefix
 }

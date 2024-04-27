@@ -8,22 +8,24 @@ on:
       branches:
         - main  
 
-jobs:
-  Run-Checks:
-    uses: ./.github/workflows/checks.yml
-    
+jobs:  
   Terraform_Plan:
-    needs: Run-Checks
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: ['dev', 'uat', 'prod']
+      
     uses: ./.github/workflows/TF_Plan.yml
     with:
+      environment: ${{ matrix.environment }}
       path: ./           
       tf_version: latest 
-      tf_vars_file: ./env/dev_baseline.tfvars            
+      tf_vars_file: ./env/${{ matrix.environment }}_baseline.tfvars            
       az_resource_group: ${{ vars.az_resource_group }}     
       az_storage_acc: ${{ vars.az_storage_acc }}  
       az_container_name: ${{ vars.AZ_CONTAINER_NAME }}
       tf_key: ${{ vars.TF_KEY }}
-    #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
+      enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
@@ -32,15 +34,21 @@ jobs:
 
   Terraform_Apply:
     needs: Terraform_Plan
-    uses: ./.github/workflows/TF_Apply.yml
+    strategy:
+      matrix:
+        environment: ['dev', 'uat', 'prod']
+
+    uses: ./.github/workflows/TF_Plan.yml
     with:
+      environment: ${{ matrix.environment }}
       path: ./           
       tf_version: latest 
-      tf_vars_file: ./env/dev_baseline.tfvars            
+      tf_vars_file: ./env/${{ matrix.environment }}_baseline.tfvars            
       az_resource_group: ${{ vars.az_resource_group }}     
       az_storage_acc: ${{ vars.az_storage_acc }}  
       az_container_name: ${{ vars.AZ_CONTAINER_NAME }}
-      tf_key: ${{ vars.TF_KEY }}     
+      tf_key: ${{ vars.TF_KEY }}
+      
     secrets:
       arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
       arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret

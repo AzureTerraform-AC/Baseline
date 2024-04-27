@@ -33,11 +33,10 @@ name: Apply_TF_Plan
           same name.
         required: true
         type: string
-      # gh_environment:
-      #   description: 'Specifies the GitHub deployment environment.'
-      #   required: false
-      #   type: string
-      #   default: null
+      environment:
+        description: 'Specifies the GitHub deployment environment.'
+        required: false
+        type: string
       tf_vars_file:
         description: Specifies the Terraform TFVARS file.
         required: true
@@ -57,8 +56,9 @@ name: Apply_TF_Plan
         required: true
 jobs:
   apply-plan:
-    # if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     defaults:
       run:
         shell: bash
@@ -76,10 +76,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.2
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.0.0
         with:
           terraform_version: '${{ inputs.tf_version }}'
+
       - name: Terraform Init
         id: init
         run: >-
@@ -88,73 +90,20 @@ jobs:
           --backend-config="container_name=$CONTAINER_NAME"
           --backend-config="resource_group_name=$RESOURCE_GROUP"
           --backend-config="key=$TF_KEY"
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan -var-file=$TF_VARS --out=plan.tfplan
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
 
-      - name: Get latest PR number
-        id: pr
-        uses: actions/github-script@v3
+    # Download Terraform Plan
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v2
         with:
-          script: |
-            const prs = await github.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              sort: 'created',
-              direction: 'desc',
-              per_page: 1
-            });
-            return prs.data[0].number;
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}           
+          name: terraform-plan
+          path: plan.tfplan
 
-      - name: Wait for PR approval
-        uses: actions/github-script@v3
-        with:
-              script: |
-                const prNumber = ${{ steps.pr.outputs.result }}
-                let isApproved = false
-                while (!isApproved) {
-                  const { data: reviews } = await github.pulls.listReviews({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: prNumber
-                  })
-                  isApproved = reviews.some(review => review.state === 'APPROVED')
-                  if (!isApproved) {
-                    // Sleep for 1 minute
-                    await new Promise(resolve => setTimeout(resolve, 60000))
-                  }
-                }
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}  
-
-
-      # - name: Request Approval
-      #   if: always()
-      #   uses: actions/github-script@v5
-      #   with:
-      #     script: |
-      #       const { data: pullRequest } = await github.pulls.get({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         pull_number: context.payload.pull_request.number
-      #       });
-
-      #       await github.pulls.createReview({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         pull_number: context.payload.pull_request.number,
-      #         event: 'COMMENT',
-      #         body: 'Please review the Terraform plan.'
-      #       });
-
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      # - name: Terraform Plan
+      #   id: plan
+      #   run: terraform plan -var-file=$TF_VARS --out=plan.tfplan
+      # - name: Terraform Plan Status
+      #   if: steps.plan.outcome == 'failure'
+      #   run: exit 1
           
       - name: Terraform Apply
         run: terraform apply plan.tfplan           

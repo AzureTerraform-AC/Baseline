@@ -1,0 +1,5 @@
+environment = "prd"
+region      = "eastus"
+owner       = "Wozhele"
+rg_name     = "TestRG-prod"
+prefix      = "baseline"
