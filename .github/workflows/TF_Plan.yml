@@ -121,7 +121,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: checkov-results
-            path: ./results.${{ inputs.environment }}-sarif 
+            path: ./${{ inputs.environment }}.sarif 
             
     # Install TFSEC
       - name: Install TFSEC
@@ -142,3 +142,20 @@ jobs:
         with:
           name: terraform-plan
           path: plan.tfplan      
+
+        # Send a custom message to a required approver
+      - name: Request for approval
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const issue_number = context.issue.number;
+            const message = 'Dear approver, please review the Terraform plan and approve if everything is okay.';
+            github.rest.issues.createComment({
+              issue_number: issue_number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
