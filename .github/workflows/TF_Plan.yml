@@ -1,4 +1,3 @@
-### Reusable workflow to plan terraform deployment, create artifact and upload to workflow artifacts for consumption ###
 name: "Build_TF_Plan"
 on:
   workflow_call:
@@ -24,37 +23,44 @@ on:
         description: 'Specifies the Azure Storage account container where backend Terraform state is hosted.'
         required: true
         type: string
-      tf_key:
-        description: 'Specifies the Terraform state file name for this plan. Workflow artifact will use same name'
+      prefix:
+        description: 'Specifies a generic name to identify the resources in this repo (also used to name tfstate)'
+        required: true
+        type: string
+      arm_subscription_id:
+        description: 'Specifies the ARM subscription id'
+        required: true
+        type: string
+      arm_client_id:
+        description: 'Specifies the ARM client id'
+        required: true
+        type: string
+      arm_tenant_id:
+        description: 'Specifies the ARM Tenant id'
         required: true
         type: string
       environment:
         description: 'Specifies the GitHub deployment environment.'
-        required: false
+        required: true
         type: string
       tf_vars_file:
         description: 'Specifies the Terraform TFVARS file.'
         required: true
         type: string
+      # required_approver:
+      #   description: 'GitHub riquired approver.'
+      #   required: true
+      #   type: string
       enable_TFSEC:
         description: '(Optional) Enables TFSEC IaC scans and code quality checks on Terraform configurations'
         required: false
         type: boolean
         default: false
     secrets:
-      arm_client_id:
-        description: 'Specifies the Azure ARM CLIENT ID.'
-        required: true
       arm_client_secret:
-        description: 'Specifies the Azure ARM CLIENT SECRET.'
-        required: true
-      arm_subscription_id:
-        description: 'Specifies the Azure ARM SUBSCRIPTION ID.'
-        required: true
-      arm_tenant_id:
-        description: 'Specifies the Azure ARM TENANT ID.'
-        required: true
-
+        description: Specifies the Azure ARM CLIENT SECRET.
+        required: true    
+     
 jobs:
   build-plan:
     runs-on: ubuntu-latest
@@ -67,95 +73,110 @@ jobs:
       STORAGE_ACCOUNT: ${{ inputs.az_storage_acc }}
       CONTAINER_NAME: ${{ inputs.az_container_name }}
       RESOURCE_GROUP: ${{ inputs.az_resource_group }}
-      TF_KEY: ${{ inputs.tf_key }}.tfstate
+      TF_KEY: ${{ inputs.environment }}-${{ inputs.prefix }}.tfstate
       TF_VARS: ${{ inputs.tf_vars_file }}
+      ARM_SUBSCRIPTION_ID: ${{ inputs.arm_subscription_id }}
+      ARM_TENANT_ID: ${{ inputs.arm_tenant_id }} 
+      ARM_CLIENT_ID: ${{ inputs.arm_client_id }}           
       ###AZURE Client details###
-      ARM_CLIENT_ID: ${{ secrets.arm_client_id }}
       ARM_CLIENT_SECRET: ${{ secrets.arm_client_secret }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.arm_subscription_id }}
-      ARM_TENANT_ID: ${{ secrets.arm_tenant_id }}
+
   
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.2
+
     # Setup Terraform Version
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.0.0
         with:
-          terraform_version: ${{ inputs.tf_version }}
+          terraform_version: ${{ inputs.tf_version }}   
 
     # Setup Python
-      - name: Setup Terraform
+      - name: Setup Python
         uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+        with: 
+          python-version: '3.10'             
 
-    # Terraform Init        
+    # Initialize Terraform
       - name: Terraform Init
         id: init
         run: terraform init --backend-config="storage_account_name=$STORAGE_ACCOUNT" --backend-config="container_name=$CONTAINER_NAME" --backend-config="resource_group_name=$RESOURCE_GROUP" --backend-config="key=$TF_KEY"   
-
-    # Terraform Format
+       
+    # Format Terraform
       - name: Terraform Format
         id: fmt
-        run: terraform fmt --recursive
+        run: terraform fmt --recursive 
 
-    # Terraform Validate
+    # Validate Terraform
       - name: Terraform Validate
         id: validate
         run: terraform validate
 
-    # Install Checkov    
+    # Install Checkov
       - name: Install Checkov
         id: checkov
         run: pip3 install checkov
       - name: Show Checkov Version
         run: checkov -v
 
-    # Run Checkov
+    # Run Checkov    
       - name: Run Checkov
-        run: checkov -d . -o sarif -s --framework terraform --skip-check CKV_AZURE_59,CKV_AZURE_40,CKV_AZURE_53,CKV_AZURE_37,CKV_AZURE_41,CKV_AZURE_1                    
+        run: checkov -d . -o sarif -s --output-file-path ${{ inputs.environment }}-results.sarif  --framework terraform --skip-check CKV_AZURE_59,CKV_AZURE_40,CKV_AZURE_53,CKV_AZURE_37,CKV_AZURE_41,CKV_AZURE_1     
 
     # Upload Checkov Artifact
       - name: Upload Checkov Artifact
         uses: actions/upload-artifact@v4
         with:
-            name: checkov-results
-            path: ./${{ inputs.environment }}.sarif 
-            
-    # Install TFSEC
-      - name: Install TFSEC
-        uses: aquasecurity/tfsec-action@v1.0.3
-      
-  # Terraform Plan
+            name: ${{ inputs.environment }}-checkov-results
+            path: ${{ inputs.environment }}-results.sarif
+                 
+    # Run TFSec 
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3 
+
+    # Terraform Plan
       - name: Terraform Plan
         id: plan
-        run: terraform plan -var-file=$TF_VARS --out=plan.tfplan
+        run: terraform plan -var-file=$TF_VARS --out=${{ inputs.environment }}.tfplan
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-# Upload Terraform Plan as an artifact
+      # Upload plan as an artifact    
       - name: Upload Terraform Plan
-        uses: actions/upload-artifact@v2
-        with:
-          name: terraform-plan
-          path: plan.tfplan      
+        uses: actions/upload-artifact@v4
+        with: 
+          name: ${{ inputs.environment }}-terraform-plan
+          path: ${{ inputs.environment }}.tfplan
 
-        # Send a custom message to a required approver
-      - name: Request for approval
-        uses: actions/github-script@v5
+      - name: add-plan-comment
+        id: pr-comment
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue_number = context.issue.number;
-            const message = 'Dear approver, please review the Terraform plan and approve if everything is okay.';
-            github.rest.issues.createComment({
-              issue_number: issue_number,
+            const output = `#### Terraform Format and Style \`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization \`${{ steps.init.outcome }}\`
+            #### Terraform Validation ${{ steps.validate.outputs.stdout }}
+            #### Terraform Plan \`${{ steps.plan.outcome }}\`
+        
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`${process.env.PLAN}\`\`\`
+            
+            </details>
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.path }}\`, Workflow: \`${{ github.workflow }}\`*`;
+              
+            github.issues.createComment({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: message
-            });
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+              body: output
+            })        
+   
