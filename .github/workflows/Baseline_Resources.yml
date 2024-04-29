@@ -1,44 +1,58 @@
 name: "Baseline_Resources"
 on:
   workflow_dispatch: #Allows you to run this workflow manually from the Actions tab
-  pull_request:
-    branches:
-      - main   
+  pull_request: 
+    paths-ignore: 
+      - '*.md'    
   push:
       branches:
-        - main         
-
+        - deployments  
+permissions: write-all  # To update and ensure least priviledge is granted.
+  # contents: write
+  # issues: write    
 jobs:
   Terraform_Plan:
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Plan.yml@main
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: [sbx-plan, uat-plan, prd-plan]
+
+    uses: ./.github/workflows/TF_Plan.yml
     with:
+      environment: ${{ vars.ENVIRONEMNT }}
       path: ./           
       tf_version: latest 
-      tf_vars_file: ./env/dev_baseline.tfvars            
+      tf_vars_file: ./env/${{ vars.ENVIRONEMNT }}_baseline.tfvars            
       az_resource_group: ${{ vars.az_resource_group }}     
       az_storage_acc: ${{ vars.az_storage_acc }}  
-      az_container_name: ${{ vars.AZ_CONTAINER_NAME }}
-      tf_key: ${{ vars.TF_KEY }}
-    #   enable_TFSEC: true                 ## (Optional)  Enable TFSEC IaC scans (Private repo requires GitHub enterprise)
+      az_container_name: ${{ vars.az_container_name }}
+      prefix: ${{ vars.prefix }}
+      arm_client_id: ${{ vars.ARM_CLIENT_ID }}            
+      arm_subscription_id: ${{ vars.ARM_SUBSCRIPTION_ID }} 
+      arm_tenant_id: ${{ vars.ARM_TENANT_ID }}       
     secrets:
-      arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
-      arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
-      arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
-      arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID
+      arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }} 
 
   Terraform_Apply:
     needs: Terraform_Plan
-    uses: AzureTerraform-AC/Baseline/.github/workflows/TF_Apply.yml@main
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: [sbx-plan, uat-plan, prd-plan]
+
+    uses: ./.github/workflows/TF_Apply.yml
     with:
+      environment: ${{ vars.environment }}      
       path: ./           
       tf_version: latest 
-      tf_vars_file: ./env/dev_baseline.tfvars            
+      tf_vars_file: ./env/${{ vars.environment }}_baseline.tfvars       
       az_resource_group: ${{ vars.az_resource_group }}     
       az_storage_acc: ${{ vars.az_storage_acc }}  
-      az_container_name: ${{ vars.AZ_CONTAINER_NAME }}
-      tf_key: ${{ vars.TF_KEY }}     
+      az_container_name: ${{ vars.az_container_name }}
+      prefix: ${{ vars.prefix }}    
+      arm_client_id: ${{ vars.arm_client_id }}            
+      arm_subscription_id: ${{ vars.arm_subscription_id }} 
+      arm_tenant_id: ${{ vars.arm_tenant_id }}         
     secrets:
-      arm_client_id: ${{ secrets.ARM_CLIENT_ID }}             ## ARM Client ID 
-      arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}     ## ARM Client Secret
-      arm_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }} ## ARM Subscription ID
-      arm_tenant_id: ${{ secrets.ARM_TENANT_ID }}             ## ARM Tenant ID            
+      arm_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}
+   

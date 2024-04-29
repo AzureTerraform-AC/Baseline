@@ -16,6 +16,6 @@ resource "azurerm_storage_account" "example" {
 
   tags = {
     environment = var.environment
-
+    prefix      = var.prefix
   }
 }

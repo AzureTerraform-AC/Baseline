@@ -1,5 +1,5 @@
 environment = "uat"
 region      = "eastus"
 owner       = "Wozhele"
-rg_name     = "actiontest"
+rg_name     = "TestRG-uat"
 prefix      = "baseline"
